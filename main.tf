@@ -290,8 +290,8 @@ resource "aws_iam_instance_profile" "ec2_ssm_profile" {
 resource "aws_instance" "nginx" {
   ami                    = var.ami
   instance_type          = "t2.micro"
-  subnet_id              = aws_subnet.public.id
-  vpc_security_group_ids = [aws_security_group.public.id]
+  subnet_id              = aws_subnet.public_facing.id
+  vpc_security_group_ids = [aws_security_group.public_facing.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2_ssm_profile.name
 
   user_data = <<-EOF
