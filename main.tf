@@ -221,8 +221,8 @@ resource "aws_security_group" "private_db" {
 
   ingress {
     description = "HTTP from private subnet app tier"
-    from_port   = 80
-    to_port     = 80
+    from_port   = 3306
+    to_port     = 3306
     protocol    = "tcp"
 #    cidr_blocks = [aws_security_group.public.id]
     security_groups = [aws_security_group.private_app.id]
@@ -240,9 +240,9 @@ resource "aws_security_group" "private_db" {
 */
   ingress {
     description = "MYSQL/Aurora from private subnet app tier"
-    from_port   = 3306
-    to_port     = 3306
-    protocol    = "TCP"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     self        = true
   }
 
