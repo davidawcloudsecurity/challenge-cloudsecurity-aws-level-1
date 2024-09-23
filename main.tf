@@ -24,7 +24,7 @@ resource "aws_vpc" "main" {
 }
 
 # Subnets
-resource "aws_subnet" "public" {
+resource "aws_subnet" "public_facing" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.1.0/24"
   availability_zone       = "${var.region}a"
@@ -75,7 +75,7 @@ resource "aws_eip" "nat_eip" {
 
 resource "aws_nat_gateway" "nat" {
   allocation_id = aws_eip.nat_eip.id
-  subnet_id     = aws_subnet.public.id
+  subnet_id     = aws_subnet.public_facing.id
 
   tags = {
     Name = "main-nat"
@@ -122,9 +122,9 @@ resource "aws_route_table" "private_db" {
   }
 }
 
-resource "aws_route_table_association" "public" {
-  subnet_id      = aws_subnet.public.id
-  route_table_id = aws_route_table.public.id
+resource "aws_route_table_association" "public_facing" {
+  subnet_id      = aws_subnet.public_facing.id
+  route_table_id = aws_route_table.public_facing.id
 }
 
 resource "aws_route_table_association" "private_app" {
