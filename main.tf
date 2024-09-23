@@ -249,7 +249,7 @@ resource "aws_security_group" "private_db" {
   egress {
     from_port   = 443
     to_port     = 443
-    protocol    = "-1"
+    protocol    = "tcp"
     self        = true
 #    cidr_blocks = ["0.0.0.0/0"]
   }
