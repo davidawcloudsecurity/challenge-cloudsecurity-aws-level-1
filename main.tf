@@ -152,7 +152,7 @@ resource "aws_security_group" "public_facing" {
   }
 
   ingress {
-    description = "HTTP from anywhere"
+    description = "HTTPS from anywhere"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
@@ -167,7 +167,7 @@ resource "aws_security_group" "public_facing" {
   }
 
   tags = {
-    Name = "allow_http_ssh"
+    Name = "allow_http_https"
   }
 }
 
@@ -181,27 +181,17 @@ resource "aws_security_group" "private_app" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-#    cidr_blocks = [aws_security_group.public_facing.id]
-    security_groups = [aws_security_group.public_facing.id]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    description = "Setup to allow SSM"
+    description = "HTTPS from public subnet"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]    
   }
   
-/* remove as it is on private_db
-  ingress {
-    description = "MYSQL/Aurora from private subnet"
-    from_port   = 3306
-    to_port     = 3306
-    protocol    = "TCP"
-    self        = true
-  }
-*/
   egress {
     from_port   = 0
     to_port     = 0
@@ -221,36 +211,25 @@ resource "aws_security_group" "private_db" {
 
   ingress {
     description = "HTTP from private subnet app tier"
-    from_port   = 3306
-    to_port     = 3306
+    from_port   = 80
+    to_port     = 80
     protocol    = "tcp"
-#    cidr_blocks = [aws_security_group.public.id]
-    security_groups = [aws_security_group.private_app.id]
+    cidr_blocks = ["0.0.0.0/0"]
   }
-/* Remove to test
+
   ingress {
-    description = "Setup to allow SSM"
+    description = "MYSQL protocol from private subnet app tier"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]    
-#    cidr_blocks = [aws_security_group.public.id]
-#    security_groups = [aws_security_group.private_app.id]
-  }  
-*/
-  ingress {
-    description = "MYSQL/Aurora from private subnet app tier"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    self        = true
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
     description = "SSM from AWS"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
