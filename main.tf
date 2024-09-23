@@ -247,11 +247,11 @@ resource "aws_security_group" "private_db" {
   }
 
   egress {
+    description = "SSM from AWS"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    self        = true
-#    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = {
