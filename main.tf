@@ -383,22 +383,29 @@ resource "aws_instance" "mysql" {
   }
 }
 
-# VPC Flow Log
+# Attempt to fetch the existing CloudWatch Log Group
 data "aws_cloudwatch_log_group" "existing_flow_log" {
   name = "/vpc/flow-log"
-
-  count = 1
 }
 
+# Create the CloudWatch Log Group only if it doesn't exist
 resource "aws_cloudwatch_log_group" "flow_log" {
-  count = length(data.aws_cloudwatch_log_group.existing_flow_log) > 0 ? 0 : 1
-  name  = "/vpc/flow-log"
+  name = "/vpc/flow-log"
+  
+  # Create only if the data source didn't find an existing log group
+  count = try(data.aws_cloudwatch_log_group.existing_flow_log.name, "") == "" ? 1 : 0
+}
+
+# Use a local value to reference the log group, whether it's existing or newly created
+locals {
+  flow_log_group_name = try(data.aws_cloudwatch_log_group.existing_flow_log.name, aws_cloudwatch_log_group.flow_log[0].name)
+  flow_log_group_arn  = try(data.aws_cloudwatch_log_group.existing_flow_log.arn, aws_cloudwatch_log_group.flow_log[0].arn)
 }
 
 # Use this in your aws_flow_log resource
 resource "aws_flow_log" "main" {
   iam_role_arn    = aws_iam_role.flow_log_role.arn
-  log_destination = length(data.aws_cloudwatch_log_group.existing_flow_log) > 0 ? data.aws_cloudwatch_log_group.existing_flow_log[0].arn : aws_cloudwatch_log_group.flow_log[0].arn
+  log_destination = local.flow_log_group_arn
   traffic_type    = "ALL"
   vpc_id          = aws_vpc.main.id
 }
