@@ -387,12 +387,14 @@ resource "aws_instance" "mysql" {
 # VPC Flow Log
 data "aws_cloudwatch_log_group" "existing_flow_log" {
   name = "/vpc/flow-log"
-
-  count = 1  # 1 to try to fetch the existing log group. 0 to create new
+  # remove
+  # count = 1  # 1 to try to fetch the existing log group. 0 to create new
 }
 
 resource "aws_cloudwatch_log_group" "flow_log" {
-  count = length(data.aws_cloudwatch_log_group.existing_flow_log) > 0 ? 0 : 1
+  # If the role is not found, it creates a new IAM role with count = 1
+  count = length(try(data.aws_cloudwatch_log_group.existing_flow_log, [])) > 0 ? 0 : 1
+  # count = length(data.aws_cloudwatch_log_group.existing_flow_log) > 0 ? 0 : 1
   name  = "/vpc/flow-log"
 }
 
