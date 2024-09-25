@@ -387,8 +387,8 @@ resource "aws_instance" "mysql" {
 # VPC Flow Log
 data "aws_cloudwatch_log_group" "existing_flow_log" {
   name = "/vpc/flow-log"
-  # remove
-  # count = 1  # 1 to try to fetch the existing log group. 0 to create new
+  
+  count = 1  # 1 to try to fetch the existing log group. 0 to create new
 }
 
 resource "aws_cloudwatch_log_group" "flow_log" {
