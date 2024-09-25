@@ -401,7 +401,7 @@ resource "aws_cloudwatch_log_group" "flow_log" {
 # Use this in your aws_flow_log resource
 resource "aws_flow_log" "main" {
   iam_role_arn    = aws_iam_role.flow_log_role.arn
-  log_destination = length(data.aws_cloudwatch_log_group.existing_flow_log) > 0 ? data.aws_cloudwatch_log_group.existing_flow_log.arn : aws_cloudwatch_log_group.flow_log[0].arn
+  log_destination = length(data.aws_cloudwatch_log_group.existing_flow_log) > 0 ? data.aws_cloudwatch_log_group.existing_flow_log[0].arn : aws_cloudwatch_log_group.flow_log[0].arn
   traffic_type    = "ALL"
   vpc_id          = aws_vpc.main.id
 }
