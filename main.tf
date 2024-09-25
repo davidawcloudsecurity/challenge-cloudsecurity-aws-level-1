@@ -5,7 +5,7 @@ variable "region" {
 
 variable "ami" {
   description = "Amazon Linux 2 AMI ID"
-  default     = "ami-02c21308fed24a8ab"  # Amazon Linux 2 AMI (HVM) - Kernel 5.10, SSD Volume Type in us-east-1
+  default     = "ami-02c21308fed24a8ab" # Amazon Linux 2 AMI (HVM) - Kernel 5.10, SSD Volume Type in us-east-1
 }
 
 provider "aws" {
@@ -36,9 +36,9 @@ resource "aws_subnet" "public_facing" {
 }
 
 resource "aws_subnet" "private_app" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.2.0/24"
-  availability_zone = "${var.region}a"
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.2.0/24"
+  availability_zone       = "${var.region}a"
   map_public_ip_on_launch = true # temp for ssm
 
   tags = {
@@ -47,9 +47,9 @@ resource "aws_subnet" "private_app" {
 }
 
 resource "aws_subnet" "private_db" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.3.0/24"
-  availability_zone = "${var.region}a"
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.3.0/24"
+  availability_zone       = "${var.region}a"
   map_public_ip_on_launch = true # temp for ssm
 
   tags = {
@@ -157,7 +157,7 @@ resource "aws_security_group" "public_facing" {
     to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
-  }  
+  }
 
   egress {
     from_port   = 0
@@ -181,7 +181,7 @@ resource "aws_security_group" "private_app" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-#    cidr_blocks = [aws_security_group.public_facing.id]
+    #    cidr_blocks = [aws_security_group.public_facing.id]
     security_groups = [aws_security_group.public_facing.id]
   }
 
@@ -190,10 +190,10 @@ resource "aws_security_group" "private_app" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]    
+    cidr_blocks = ["0.0.0.0/0"]
   }
-  
-/* remove as it is on private_db
+
+  /* remove as it is on private_db
   ingress {
     description = "MYSQL/Aurora from private subnet"
     from_port   = 3306
@@ -224,10 +224,10 @@ resource "aws_security_group" "private_db" {
     from_port   = 3306
     to_port     = 3306
     protocol    = "tcp"
-#    cidr_blocks = [aws_security_group.public.id]
+    #    cidr_blocks = [aws_security_group.public.id]
     security_groups = [aws_security_group.private_app.id]
   }
-/* Remove to test
+  /* Remove to test
   ingress {
     description = "Setup to allow SSM"
     from_port   = 443
@@ -395,7 +395,7 @@ resource "aws_cloudwatch_log_group" "flow_log" {
   # If the role is not found, it creates a new IAM role with count = 1
   count = length(try(data.aws_cloudwatch_log_group.existing_flow_log, [])) > 0 ? 0 : 1
   # count = length(data.aws_cloudwatch_log_group.existing_flow_log) > 0 ? 0 : 1
-  name  = "/vpc/flow-log"
+  name = "/vpc/flow-log"
 }
 
 # Use this in your aws_flow_log resource
@@ -446,5 +446,5 @@ resource "aws_iam_role_policy" "flow_log_policy" {
 }
 
 output "seeds" {
-  value = [ aws_instance.nginx.private_ip, aws_instance.wordpress.private_ip, aws_instance.mysql.private_ip ]
+  value = [aws_instance.nginx.private_ip, aws_instance.wordpress.private_ip, aws_instance.mysql.private_ip]
 }
