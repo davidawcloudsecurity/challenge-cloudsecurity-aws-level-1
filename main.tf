@@ -393,8 +393,7 @@ data "aws_cloudwatch_log_group" "existing_flow_log" {
 
 resource "aws_cloudwatch_log_group" "flow_log" {
   # If the role is not found, it creates a new IAM role with count = 1
-  count = length(try(data.aws_cloudwatch_log_group.existing_flow_log, [])) > 0 ? 0 : 1
-  # count = length(data.aws_cloudwatch_log_group.existing_flow_log) > 0 ? 0 : 1
+  count = length(data.aws_cloudwatch_log_group.existing_flow_log) > 0 ? 0 : 1
   name = "/vpc/flow-log"
 }
 
