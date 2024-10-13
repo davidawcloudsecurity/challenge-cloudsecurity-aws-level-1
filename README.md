@@ -15,12 +15,15 @@ Install if running at cloudshell
 ```ruby
 sudo yum install -y yum-utils shadow-utils; sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo; sudo yum -y install terraform
 ```
-```bash
+## Logging and Monitoring
 Comprehensive Hands-On Lab: AWS Logging Solution
-Objectives
+## Objectives
 Gain a thorough understanding of AWS logging mechanisms.
+
 Implement and automate logging strategies to monitor AWS resources and activities effectively.
-Lab Steps
+### Lab Steps
+```bash
+
 Enable AWS CloudTrail:
 
 Go to the AWS CloudTrail console.
