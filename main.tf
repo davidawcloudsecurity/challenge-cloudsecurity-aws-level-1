@@ -8,6 +8,10 @@ variable "ami" {
   default     = "ami-02c21308fed24a8ab" # Amazon Linux 2 AMI (HVM) - Kernel 5.10, SSD Volume Type in us-east-1
 }
 
+variable "s3_bucket_name" {
+  description = "S3 bucket for cloudwatch logs"
+}
+
 provider "aws" {
   version = "5.70.0"
   region  = var.region
@@ -58,6 +62,44 @@ resource "aws_subnet" "private_db" {
   }
 }
 
+# S3 bucket
+resource "aws_s3_bucket" "s3_bucket" {
+  bucket = "my-bucket"
+
+  acl             = "private"
+  force_destroy  = true
+
+  tags = {
+    Name = "s3-bucket"
+  }
+
+  versioning {
+    enabled = true
+  }
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+}
+
+# Create Cloudtrail
+resource "aws_cloudtrail" "main" {
+  name                = "my-cloudtrail"
+  s3_bucket_name     = var.s3_bucket_name
+  include_global_service_events = true
+  is_multi_region_trail = false
+  region                = "us-east-1"
+  logging_mode         = "All"
+
+  tags = {
+    Name = "main-cloudtrail"
+  }
+}
+
 # Internet Gateway
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
@@ -66,7 +108,6 @@ resource "aws_internet_gateway" "igw" {
     Name = "main-igw"
   }
 }
-
 
 # NAT Gateway
 resource "aws_eip" "nat_eip" {
@@ -234,10 +275,10 @@ resource "aws_security_group" "private_db" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]    
+    cidr_blocks = ["0.0.0.0/0"]
 #    cidr_blocks = [aws_security_group.public.id]
 #    security_groups = [aws_security_group.private_app.id]
-  }  
+  }
 */
   ingress {
     description = "MYSQL/Aurora from private subnet app tier"
@@ -388,7 +429,7 @@ resource "aws_instance" "mysql" {
 # VPC Flow Log
 data "aws_cloudwatch_log_group" "existing_flow_log" {
   name = "/vpc/flow-log"
-  
+
   count = 0  # 1 to try to fetch the existing log group. 0 to create new
 }
 
